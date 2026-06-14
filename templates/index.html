@@ -262,11 +262,43 @@
             if (translator === 'openai' || translator === 'mimo' || translator === 'mimo-token') {
                 section.classList.add('show');
                 modelSection.style.display = 'block';
+                loadSavedApiKey(translator);
             } else {
                 section.classList.remove('show');
                 modelSection.style.display = 'none';
             }
         }
+
+        function loadSavedApiKey(translator) {
+            var savedKey = localStorage.getItem('api_key_' + translator);
+            if (savedKey) {
+                document.getElementById('api_key').value = savedKey;
+            }
+        }
+
+        function saveApiKey() {
+            var translator = document.getElementById('translator').value;
+            var apiKey = document.getElementById('api_key').value;
+            if (apiKey && (translator === 'openai' || translator === 'mimo' || translator === 'mimo-token')) {
+                localStorage.setItem('api_key_' + translator, apiKey);
+            }
+        }
+
+        // 页面加载时恢复设置
+        window.onload = function() {
+            var savedTranslator = localStorage.getItem('last_translator');
+            if (savedTranslator) {
+                document.getElementById('translator').value = savedTranslator;
+                toggleApiKey();
+            }
+        };
+
+        // 表单提交时保存设置
+        document.querySelector('form').addEventListener('submit', function() {
+            var translator = document.getElementById('translator').value;
+            localStorage.setItem('last_translator', translator);
+            saveApiKey();
+        });
     </script>
 </body>
 </html>

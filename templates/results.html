@@ -198,5 +198,21 @@
             </div>
         </div>
     </div>
+
+    <script>
+        // 自动下载所有翻译后的文件
+        window.onload = function() {
+            {% for result in results %}
+            setTimeout(function() {
+                var link = document.createElement('a');
+                link.href = '/download/{{ result.output }}';
+                link.download = '{{ result.output }}';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }, {{ loop.index0 * 500 }});
+            {% endfor %}
+        };
+    </script>
 </body>
 </html>
