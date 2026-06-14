@@ -170,7 +170,7 @@ class MiMoTokenPlanTranslator(BaseTranslator):
     """小米 MiMo Token Plan 翻译器"""
     
     def __init__(self, api_key: str, source_lang: str = 'auto', target_lang: str = 'en',
-                 model: str = 'mimo-7b'):
+                 model: str = 'mimo-v2.5-pro'):
         super().__init__(normalize_lang(source_lang), normalize_lang(target_lang))
         self.api_key = api_key
         self.model = model
@@ -232,6 +232,6 @@ def get_translator(translator_type: str, api_key: Optional[str] = None,
             if not api_key:
                 raise ValueError("MiMo Token Plan key is required. Use --api-key or set MIMO_TOKEN_PLAN_KEY environment variable.")
         
-        return MiMoTokenPlanTranslator(api_key, source_lang, target_lang, model=model or 'mimo-7b')
+        return MiMoTokenPlanTranslator(api_key, source_lang, target_lang, model=model or 'mimo-v2.5-pro')
     else:
         raise ValueError(f"Unsupported translator: {translator_type}")
