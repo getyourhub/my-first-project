@@ -10,6 +10,7 @@
 - 📦 批量处理多个文件
 - 🐳 Docker 支持，开箱即用
 - 🔧 灵活的命令行参数
+- 🖥️ **Web UI 界面** - 通过浏览器访问使用
 
 ## 🚀 快速开始
 
@@ -42,6 +43,39 @@ python main.py input.srt --translator google --target-lang zh-cn
 
 ---
 
+## 🖥️ Web UI 界面
+
+本工具提供了一个漂亮的 Web 界面，通过浏览器即可使用！
+
+### 启动 Web UI
+
+```bash
+# 使用 Docker 启动
+docker run -d --name subtitles -p 5000:5000 getyourhub/subtitles:latest
+
+# 或使用 docker-compose
+docker-compose up -d
+```
+
+### 访问 Web UI
+
+打开浏览器访问：`http://你的NAS-IP:5000`
+
+### Web UI 功能
+
+- 📁 拖拽上传字幕文件
+- 🌐 选择翻译引擎（Google/OpenAI）
+- 🎯 选择目标语言
+- ✅ 生成双语字幕
+- ⬇️ 一键下载翻译结果
+- 📦 支持批量上传和翻译
+
+### Web UI 截图
+
+访问 `http://你的IP:5000` 即可看到漂亮的翻译界面！
+
+---
+
 ## 📺 NAS 部署详细教程
 
 ### 🔹 群晖 (Synology) NAS
@@ -68,7 +102,11 @@ python main.py input.srt --translator google --target-lang zh-cn
 | 启用资源限制 | 可选 |
 
 **端口设置：**
-> ⚠️ 本工具是命令行程序，**不需要映射端口**
+| 本地端口 | 容器端口 | 说明 |
+|----------|----------|------|
+| `5000` | `5000` | Web UI 界面端口 |
+
+> 💡 启动后通过浏览器访问 `http://你的NAS-IP:5000` 使用 Web UI
 
 **存储空间映射：**
 | 本地路径 | 容器路径 | 说明 |
@@ -125,6 +163,11 @@ docker exec subtitles /data/movie.srt --translator google --target-lang zh-cn -o
 
 **高级设置：**
 
+**端口映射：**
+| 主机端口 | 容器端口 | 说明 |
+|----------|----------|------|
+| `5000` | `5000` | Web UI 界面端口 |
+
 **存储映射：**
 | 主机路径 | 容器路径 | 模式 |
 |----------|----------|------|
@@ -162,23 +205,25 @@ mkdir -p /path/to/your/subtitles
 #### 3. 运行容器
 
 ```bash
-# 基本运行（Google 翻译）
+# 基本运行（Web UI 模式）
 docker run -d \
   --name subtitles \
+  -p 5000:5000 \
   -v /path/to/your/subtitles:/data \
-  getyourhub/subtitles:latest \
-  sleep infinity
+  getyourhub/subtitles:latest
 
 # 使用 OpenAI 翻译
 docker run -d \
   --name subtitles \
+  -p 5000:5000 \
   -v /path/to/your/subtitles:/data \
   -e OPENAI_API_KEY=your_api_key_here \
-  getyourhub/subtitles:latest \
-  sleep infinity
+  getyourhub/subtitles:latest
 ```
 
-#### 4. 执行翻译任务
+> 💡 启动后访问 `http://你的IP:5000` 使用 Web UI
+
+#### 4. 执行翻译任务（命令行方式）
 
 ```bash
 # 翻译单个文件
@@ -207,11 +252,12 @@ services:
   subtitles:
     image: getyourhub/subtitles:latest
     container_name: subtitles
+    ports:
+      - "5000:5000"
     volumes:
       - /path/to/your/subtitles:/data
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY}  # 可选
-    command: ["sleep", "infinity"]
     restart: unless-stopped
 ```
 
@@ -224,7 +270,10 @@ echo "OPENAI_API_KEY=your_key_here" > .env
 # 启动容器
 docker-compose up -d
 
-# 执行翻译
+# 访问 Web UI
+# 浏览器打开 http://你的IP:5000
+
+# 或通过命令行执行翻译
 docker exec subtitles /data/movie.srt --translator google --target-lang zh-cn
 ```
 
