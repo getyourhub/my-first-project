@@ -1,253 +1,45 @@
-# Subtitles - 字幕翻译工具
+# Subtitles - 字幕翻译工具 / Subtitle Translator
 
-一个强大的命令行工具，用于将 SRT 和 ASS 字幕文件翻译成双语字幕。
+[English](#english) | [中文](#中文)
 
-## ✨ 功能特性
+---
 
-- 🎬 支持 SRT 和 ASS 字幕格式
-- 🌐 多种翻译引擎：Google 翻译、OpenAI (GPT)
-- 📝 生成双语字幕（原文 + 翻译）
-- 📦 批量处理多个文件
-- 🐳 Docker 支持，开箱即用
-- 🔧 灵活的命令行参数
-- 🖥️ **Web UI 界面** - 通过浏览器访问使用
+## English
 
-## 🚀 快速开始
+### Overview
 
-### Docker 方式（推荐）
+A powerful command-line tool and Web UI for translating SRT and ASS subtitle files into bilingual subtitles. Supports multiple translation engines including Google Translate and various LLM providers.
+
+### Features
+
+- 🎬 Support SRT and ASS subtitle formats
+- 🌐 Multiple translation engines (Google, OpenAI, DeepSeek, and 15+ LLM providers)
+- 📝 Generate bilingual subtitles (original + translation)
+- 📦 Batch processing support
+- 🐳 Docker support for easy deployment
+- 🖥️ Beautiful Web UI interface
+- 🔑 Auto-save API keys in browser
+- ⬇️ Auto-download translated files
+
+### Quick Start
+
+#### Docker (Recommended)
 
 ```bash
-# 拉取镜像
+# Pull image
 docker pull getyourhub/subtitles:latest
 
-# 翻译单个文件
-docker run -v /你的字幕目录:/data getyourhub/subtitles:latest /data/input.srt --translator google --target-lang zh-cn
+# Run with Web UI
+docker run -d --name subtitles -p 5000:5000 -v /your/subtitles:/data getyourhub/subtitles:latest
 
-# 批量翻译
-docker run -v /你的字幕目录:/data getyourhub/subtitles:latest /data/*.srt --translator google --target-lang zh-cn
+# Access Web UI
+# Open http://your-ip:5000 in browser
 ```
 
-### 本地安装
-
-```bash
-# 克隆仓库
-git clone https://github.com/getyourhub/my-first-project.git
-cd my-first-project
-
-# 安装依赖
-pip install -r requirements.txt
-
-# 使用
-python main.py input.srt --translator google --target-lang zh-cn
-```
-
----
-
-## 🖥️ Web UI 界面
-
-本工具提供了一个漂亮的 Web 界面，通过浏览器即可使用！
-
-### 启动 Web UI
-
-```bash
-# 使用 Docker 启动
-docker run -d --name subtitles -p 5000:5000 getyourhub/subtitles:latest
-
-# 或使用 docker-compose
-docker-compose up -d
-```
-
-### 访问 Web UI
-
-打开浏览器访问：`http://你的NAS-IP:5000`
-
-### Web UI 功能
-
-- 📁 拖拽上传字幕文件
-- 🌐 选择翻译引擎（Google/OpenAI）
-- 🎯 选择目标语言
-- ✅ 生成双语字幕
-- ⬇️ 一键下载翻译结果
-- 📦 支持批量上传和翻译
-
-### Web UI 截图
-
-访问 `http://你的IP:5000` 即可看到漂亮的翻译界面！
-
----
-
-## 📺 NAS 部署详细教程
-
-### 🔹 群晖 (Synology) NAS
-
-#### 1. 拉取镜像
-
-1. 打开 **Container Manager** (Docker)
-2. 点击左侧 **注册表**
-3. 搜索 `getyourhub/subtitles`
-4. 右键点击镜像 → **下载** → 选择 `latest` 标签
-
-#### 2. 创建容器
-
-1. 点击左侧 **映像**
-2. 选择 `getyourhub/subtitles:latest`
-3. 点击 **运行**
-
-#### 3. 配置容器
-
-**常规设置：**
-| 设置项 | 值 |
-|--------|-----|
-| 容器名称 | subtitles |
-| 启用资源限制 | 可选 |
-
-**端口设置：**
-| 本地端口 | 容器端口 | 说明 |
-|----------|----------|------|
-| `5000` | `5000` | Web UI 界面端口 |
-
-> 💡 启动后通过浏览器访问 `http://你的NAS-IP:5000` 使用 Web UI
-
-**存储空间映射：**
-| 本地路径 | 容器路径 | 说明 |
-|----------|----------|------|
-| `/volume1/video/subtitles` | `/data` | 字幕文件存放目录 |
-
-> 💡 将你的字幕文件放在 `/volume1/video/subtitles` 目录下
-
-**环境变量（可选 - 使用 OpenAI 时需要）：**
-| 变量名 | 值 |
-|--------|-----|
-| `OPENAI_API_KEY` | 你的 OpenAI API Key |
-
-#### 4. 运行翻译
-
-**方法一：通过终端运行**
-
-1. 在 Container Manager 中选择 `subtitles` 容器
-2. 点击 **操作** → **打开终端**
-3. 输入命令：
-
-```bash
-# 翻译单个文件
-/data/movie.srt --translator google --target-lang zh-cn -o /data/movie_bilingual.srt
-
-# 批量翻译
-/data/*.srt --translator google --target-lang zh-cn
-```
-
-**方法二：通过 SSH 运行**
-
-```bash
-# SSH 登录 NAS 后执行
-docker exec subtitles /data/movie.srt --translator google --target-lang zh-cn -o /data/movie_bilingual.srt
-```
-
----
-
-### 🔹 威联通 (QNAP) NAS
-
-#### 1. 拉取镜像
-
-1. 打开 **Container Station**
-2. 点击 **创建** → **搜索**
-3. 输入 `getyourhub/subtitles`
-4. 点击 **安装** → 选择 `latest` 标签
-
-#### 2. 创建容器
-
-1. 在 **映像** 页面找到 `getyourhub/subtitles:latest`
-2. 点击 **创建**
-
-#### 3. 配置容器
-
-**高级设置：**
-
-**端口映射：**
-| 主机端口 | 容器端口 | 说明 |
-|----------|----------|------|
-| `5000` | `5000` | Web UI 界面端口 |
-
-**存储映射：**
-| 主机路径 | 容器路径 | 模式 |
-|----------|----------|------|
-| `/share/CACHEDEV1_DATA/Video/subtitles` | `/data` | 读写 |
-
-**环境变量：**
-| 变量名 | 值 |
-|--------|-----|
-| `OPENAI_API_KEY` | 你的 API Key（可选） |
-
-#### 4. 运行翻译
-
-通过 Container Station 的 **终端** 功能或 SSH：
-
-```bash
-docker exec subtitles /data/movie.srt --translator google --target-lang zh-cn
-```
-
----
-
-### 🔹 通用 Docker 命令行部署
-
-#### 1. 拉取镜像
-
-```bash
-docker pull getyourhub/subtitles:latest
-```
-
-#### 2. 创建数据目录
-
-```bash
-mkdir -p /path/to/your/subtitles
-```
-
-#### 3. 运行容器
-
-```bash
-# 基本运行（Web UI 模式）
-docker run -d \
-  --name subtitles \
-  -p 5000:5000 \
-  -v /path/to/your/subtitles:/data \
-  getyourhub/subtitles:latest
-
-# 使用 OpenAI 翻译
-docker run -d \
-  --name subtitles \
-  -p 5000:5000 \
-  -v /path/to/your/subtitles:/data \
-  -e OPENAI_API_KEY=your_api_key_here \
-  getyourhub/subtitles:latest
-```
-
-> 💡 启动后访问 `http://你的IP:5000` 使用 Web UI
-
-#### 4. 执行翻译任务（命令行方式）
-
-```bash
-# 翻译单个文件
-docker exec subtitles /data/movie.srt --translator google --target-lang zh-cn -o /data/movie_bilingual.srt
-
-# 批量翻译所有 SRT 文件
-docker exec subtitles /data/*.srt --translator google --target-lang zh-cn
-
-# 批量翻译所有 ASS 文件
-docker exec subtitles /data/*.ass --translator google --target-lang zh-cn
-
-# 使用 OpenAI 翻译
-docker exec subtitles /data/movie.srt --translator openai --target-lang zh-cn
-```
-
----
-
-### 🔹 Docker Compose 部署
-
-创建 `docker-compose.yml`：
+#### Docker Compose
 
 ```yaml
 version: '3.8'
-
 services:
   subtitles:
     image: getyourhub/subtitles:latest
@@ -255,166 +47,295 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      - /path/to/your/subtitles:/data
+      - ./data:/data
     environment:
-      - OPENAI_API_KEY=${OPENAI_API_KEY}  # 可选
+      - MIMO_TOKEN_PLAN_KEY=${MIMO_TOKEN_PLAN_KEY}
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
     restart: unless-stopped
 ```
 
-启动：
+### Supported Translation Engines
+
+| Engine | Type | Free | API Key Required |
+|--------|------|------|------------------|
+| Google Translate | Machine | ✅ | ❌ |
+| 智谱AI GLM-4-Flash | LLM | ✅ | ✅ |
+| Groq | LLM | ✅ | ✅ |
+| SiliconFlow | LLM | ✅ | ✅ |
+| OpenRouter | LLM | ✅ | ✅ |
+| DeepSeek | LLM | Paid | ✅ |
+| 小米 MiMo Token Plan | LLM | Paid | ✅ |
+| 通义千问 (Qwen) | LLM | Paid | ✅ |
+| Moonshot (Kimi) | LLM | Paid | ✅ |
+| 零一万物 (Yi) | LLM | Paid | ✅ |
+| 讯飞星火 | LLM | Paid | ✅ |
+| 豆包 | LLM | Paid | ✅ |
+| 百度文心 | LLM | Paid | ✅ |
+| OpenAI | LLM | Paid | ✅ |
+| Together AI | LLM | Paid | ✅ |
+
+### Free LLM Recommendations
+
+1. **智谱AI GLM-4-Flash** - Chinese, free tier available
+2. **Groq** - Very fast, free tier available
+3. **SiliconFlow** - Chinese platform, free models available
+4. **OpenRouter** - Aggregator, many free models
+
+### Command Line Usage
 
 ```bash
-# 创建 .env 文件（可选，使用 OpenAI 时）
-echo "OPENAI_API_KEY=your_key_here" > .env
+# Google Translate
+docker exec subtitles /data/movie.srt --translator google --target-lang zh-cn
 
-# 启动容器
-docker-compose up -d
+# DeepSeek
+docker exec subtitles /data/movie.srt --translator deepseek --api-key YOUR_KEY --target-lang zh-cn
+
+# 智谱AI (Free)
+docker exec subtitles /data/movie.srt --translator zhipu --api-key YOUR_KEY --target-lang zh-cn
+
+# Batch processing
+docker exec subtitles /data/*.srt --translator google --target-lang zh-cn
+```
+
+### Environment Variables
+
+| Variable | Description |
+|----------|-------------|
+| `OPENAI_API_KEY` | OpenAI API Key |
+| `DEEPSEEK_API_KEY` | DeepSeek API Key |
+| `ZHIPU_API_KEY` | 智谱AI API Key |
+| `MOONSHOT_API_KEY` | Moonshot API Key |
+| `YI_API_KEY` | 零一万物 API Key |
+| `SILICONFLOW_API_KEY` | SiliconFlow API Key |
+| `GROQ_API_KEY` | Groq API Key |
+| `TOGETHER_API_KEY` | Together AI API Key |
+| `MIMO_API_KEY` | 小米 MiMo API Key |
+| `MIMO_TOKEN_PLAN_KEY` | 小米 MiMo Token Plan Key |
+| `QWEN_API_KEY` | 通义千问 API Key |
+| `BAIDU_API_KEY` | 百度文心 API Key |
+| `SPARK_API_KEY` | 讯飞星火 API Key |
+| `DOUBAO_API_KEY` | 豆包 API Key |
+| `OPENROUTER_API_KEY` | OpenRouter API Key |
+
+### NAS Deployment
+
+#### Synology NAS
+
+1. Open **Container Manager** (Docker)
+2. Pull image: `getyourhub/subtitles:latest`
+3. Create container with:
+   - Port: `5000:5000`
+   - Volume: `/volume1/video/subtitles` → `/data`
+   - Environment: Add your API keys
+4. Access Web UI at `http://nas-ip:5000`
+
+#### QNAP NAS
+
+1. Open **Container Station**
+2. Pull image: `getyourhub/subtitles:latest`
+3. Create container with:
+   - Port: `5000:5000`
+   - Volume: `/share/CACHEDEV1_DATA/Video/subtitles` → `/data`
+   - Environment: Add your API keys
+
+#### FnOS (飞牛OS)
+
+1. Pull image: `getyourhub/subtitles:latest`
+2. Create container with:
+   - Port: `5000:5000`
+   - Volume: Your subtitle directory → `/data`
+   - Environment: Add your API keys
+
+---
+
+## 中文
+
+### 概述
+
+一个强大的命令行工具和 Web 界面，用于将 SRT 和 ASS 字幕文件翻译成双语字幕。支持多种翻译引擎，包括谷歌翻译和各种大语言模型。
+
+### 功能特性
+
+- 🎬 支持 SRT 和 ASS 字幕格式
+- 🌐 多种翻译引擎（Google、OpenAI、DeepSeek 等 15+ 种）
+- 📝 生成双语字幕（原文 + 翻译）
+- 📦 批量处理支持
+- 🐳 Docker 支持，轻松部署
+- 🖥️ 漂亮的 Web UI 界面
+- 🔑 自动保存 API Key
+- ⬇️ 自动下载翻译文件
+
+### 快速开始
+
+#### Docker 方式（推荐）
+
+```bash
+# 拉取镜像
+docker pull getyourhub/subtitles:latest
+
+# 启动 Web UI
+docker run -d --name subtitles -p 5000:5000 -v /你的字幕目录:/data getyourhub/subtitles:latest
 
 # 访问 Web UI
 # 浏览器打开 http://你的IP:5000
-
-# 或通过命令行执行翻译
-docker exec subtitles /data/movie.srt --translator google --target-lang zh-cn
 ```
 
----
+#### Docker Compose
 
-## 📖 使用说明
+```yaml
+version: '3.8'
+services:
+  subtitles:
+    image: getyourhub/subtitles:latest
+    container_name: subtitles
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./data:/data
+    environment:
+      - MIMO_TOKEN_PLAN_KEY=${MIMO_TOKEN_PLAN_KEY}
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
+    restart: unless-stopped
+```
 
-### 基本用法
+### 支持的翻译引擎
+
+| 引擎 | 类型 | 免费 | 需要 API Key |
+|------|------|------|--------------|
+| Google 翻译 | 机器翻译 | ✅ | ❌ |
+| 智谱AI GLM-4-Flash | 大模型 | ✅ | ✅ |
+| Groq | 大模型 | ✅ | ✅ |
+| SiliconFlow | 大模型 | ✅ | ✅ |
+| OpenRouter | 大模型 | ✅ | ✅ |
+| DeepSeek | 大模型 | 付费 | ✅ |
+| 小米 MiMo Token Plan | 大模型 | 付费 | ✅ |
+| 通义千问 (Qwen) | 大模型 | 付费 | ✅ |
+| Moonshot (Kimi) | 大模型 | 付费 | ✅ |
+| 零一万物 (Yi) | 大模型 | 付费 | ✅ |
+| 讯飞星火 | 大模型 | 付费 | ✅ |
+| 豆包 | 大模型 | 付费 | ✅ |
+| 百度文心 | 大模型 | 付费 | ✅ |
+| OpenAI | 大模型 | 付费 | ✅ |
+| Together AI | 大模型 | 付费 | ✅ |
+
+### 免费大模型推荐
+
+1. **智谱AI GLM-4-Flash** - 国内平台，有免费额度
+2. **Groq** - 速度极快，有免费额度
+3. **SiliconFlow** - 国内平台，有免费模型
+4. **OpenRouter** - 聚合平台，有很多免费模型
+
+### 获取 API Key
+
+| 平台 | 注册地址 | 免费额度 |
+|------|----------|----------|
+| 智谱AI | https://open.bigmodel.cn | GLM-4-Flash 免费 |
+| Groq | https://console.groq.com | 有免费额度 |
+| SiliconFlow | https://cloud.siliconflow.cn | 有免费模型 |
+| OpenRouter | https://openrouter.ai | 有免费模型 |
+| DeepSeek | https://platform.deepseek.com | 有免费额度 |
+| 小米 MiMo | https://platform.xiaomimimo.com | Token Plan |
+| 通义千问 | https://dashscope.console.aliyun.com | 有免费额度 |
+| Moonshot | https://platform.moonshot.cn | 有免费额度 |
+| 零一万物 | https://platform.lingyiwanwu.com | 有免费额度 |
+| 讯飞星火 | https://xinghuo.xfyun.cn | 有免费额度 |
+| 豆包 | https://console.volcengine.com | 有免费额度 |
+| 百度文心 | https://console.bce.baidu.com | 有免费额度 |
+| OpenAI | https://platform.openai.com | 付费 |
+
+### 命令行使用
 
 ```bash
-# Google 翻译（免费）
-docker exec subtitles /data/input.srt --translator google --target-lang zh-cn
+# Google 翻译
+docker exec subtitles /data/movie.srt --translator google --target-lang zh-cn
 
-# 小米 MiMo 翻译
-docker exec subtitles /data/input.srt --translator mimo --api-key YOUR_MIMO_KEY --target-lang zh-cn
+# DeepSeek
+docker exec subtitles /data/movie.srt --translator deepseek --api-key YOUR_KEY --target-lang zh-cn
 
-# OpenAI 翻译
-docker exec subtitles /data/input.srt --translator openai --api-key YOUR_OPENAI_KEY --target-lang zh-cn
+# 智谱AI（免费）
+docker exec subtitles /data/movie.srt --translator zhipu --api-key YOUR_KEY --target-lang zh-cn
+
+# 批量翻译
+docker exec subtitles /data/*.srt --translator google --target-lang zh-cn
 ```
 
-### 命令行参数
+### 环境变量
 
-| 参数 | 说明 | 默认值 |
-|------|------|--------|
-| `INPUT_FILES` | 输入文件路径 | - |
-| `-o, --output` | 输出文件路径 | 自动生成 |
-| `--translator` | 翻译引擎 (google/openai/mimo) | google |
-| `--api-key` | API Key (OpenAI 或 MiMo) | - |
-| `--model` | 模型名称（可选） | - |
-| `--source-lang` | 源语言 | auto |
-| `--target-lang` | 目标语言 | en |
-| `--bilingual/--no-bilingual` | 是否生成双语字幕 | bilingual |
+| 变量名 | 说明 |
+|--------|------|
+| `OPENAI_API_KEY` | OpenAI API Key |
+| `DEEPSEEK_API_KEY` | DeepSeek API Key |
+| `ZHIPU_API_KEY` | 智谱AI API Key |
+| `MOONSHOT_API_KEY` | Moonshot API Key |
+| `YI_API_KEY` | 零一万物 API Key |
+| `SILICONFLOW_API_KEY` | SiliconFlow API Key |
+| `GROQ_API_KEY` | Groq API Key |
+| `TOGETHER_API_KEY` | Together AI API Key |
+| `MIMO_API_KEY` | 小米 MiMo API Key |
+| `MIMO_TOKEN_PLAN_KEY` | 小米 MiMo Token Plan Key |
+| `QWEN_API_KEY` | 通义千问 API Key |
+| `BAIDU_API_KEY` | 百度文心 API Key |
+| `SPARK_API_KEY` | 讯飞星火 API Key |
+| `DOUBAO_API_KEY` | 豆包 API Key |
+| `OPENROUTER_API_KEY` | OpenRouter API Key |
 
-### 支持的语言代码
+### NAS 部署教程
 
-| 语言 | 代码 |
-|------|------|
-| 中文（简体） | zh-cn, zh, chinese |
-| 中文（繁体） | zh-tw |
-| 英语 | en, english |
-| 日语 | ja, japanese |
-| 韩语 | ko, korean |
-| 法语 | fr, french |
-| 德语 | de, german |
-| 西班牙语 | es, spanish |
-| 俄语 | ru, russian |
-| 葡萄牙语 | pt, portuguese |
+#### 群晖 (Synology) NAS
 
-更多语言代码请参考 [Google Translate 支持的语言](https://cloud.google.com/translate/docs/languages)
+1. 打开 **Container Manager** (Docker)
+2. 搜索并拉取镜像：`getyourhub/subtitles:latest`
+3. 创建容器：
+   - 端口：`5000:5000`
+   - 存储：`/volume1/video/subtitles` → `/data`
+   - 环境变量：添加你的 API Key
+4. 访问 Web UI：`http://NAS-IP:5000`
 
-### 翻译引擎配置
+#### 威联通 (QNAP) NAS
 
-#### Google 翻译
-- 免费使用，无需配置
-- 可能有请求频率限制
+1. 打开 **Container Station**
+2. 搜索并拉取镜像：`getyourhub/subtitles:latest`
+3. 创建容器：
+   - 端口：`5000:5000`
+   - 存储：`/share/CACHEDEV1_DATA/Video/subtitles` → `/data`
+   - 环境变量：添加你的 API Key
 
-#### OpenAI GPT
-- 需要 API Key：[获取 OpenAI API Key](https://platform.openai.com/api-keys)
-- 环境变量：`OPENAI_API_KEY`
-- 默认模型：`gpt-3.5-turbo`
-- 可选模型：`gpt-4`, `gpt-4-turbo` 等
+#### 飞牛OS (FnOS)
 
-#### 小米 MiMo
-- 需要 API Key：[获取 MiMo API Key](https://platform.xiaomimimo.com)
-- 环境变量：`MIMO_API_KEY`
-- 默认模型：`mimo-7b`
-- 国产大模型，中文翻译效果优秀
+1. 拉取镜像：`getyourhub/subtitles:latest`
+2. 创建容器：
+   - 端口：`5000:5000`
+   - 存储：你的字幕目录 → `/data`
+   - 环境变量：添加你的 API Key
 
----
+### 输出格式
 
-## 📝 输出格式
-
-### SRT 双语字幕示例
+#### SRT 双语字幕
 
 ```
 1
 00:00:01,000 --> 00:00:03,000
 Hello, how are you?
 你好吗？
-
-2
-00:00:03,500 --> 00:00:06,000
-I'm fine, thank you.
-我很好，谢谢。
 ```
 
-### ASS 双语字幕示例
+#### ASS 双语字幕
 
-ASS 格式会保留原始样式，翻译文本使用 `\N` 换行符与原文分隔。
+```
+Dialogue: 0,0:00:01.00,0:00:03.00,Default,,0,0,0,,Hello, how are you?\N你好吗？
+```
+
+### 注意事项
+
+1. **Google 翻译**：免费使用，但国内可能无法访问
+2. **智谱 GLM-4-Flash**：国内免费推荐
+3. **Groq**：海外免费推荐，速度极快
+4. **API Key 安全**：Key 保存在浏览器本地，不会上传到服务器
+5. **字符编码**：自动检测 UTF-8、GBK 等编码
+6. **ASS 格式**：支持各种 ASS/SSA 格式，包括 Abogen 生成的
 
 ---
 
-## ⚠️ 注意事项
+## License
 
-1. **Google 翻译**：免费使用，但可能有请求频率限制
-2. **OpenAI 翻译**：需要 API Key，翻译质量更高，但会产生费用
-3. **小米 MiMo 翻译**：国产大模型，中文翻译效果好，需要 API Key
-4. **字符编码**：程序会自动尝试 UTF-8 和 Latin-1 编码
-5. **ASS 格式**：会自动清理 ASS 格式标签，只保留纯文本
-6. **NAS 存储路径**：请根据你的 NAS 实际路径修改映射目录
-
----
-
-## 🔧 开发
-
-### 项目结构
-
-```
-subtitles/
-├── main.py              # 主程序入口
-├── subtitle_parser.py   # 字幕解析器
-├── translator.py        # 翻译器实现
-├── requirements.txt     # Python 依赖
-├── Dockerfile           # Docker 配置
-├── docker-compose.yml   # Docker Compose 配置
-├── Makefile             # 常用命令
-├── samples/             # 示例文件
-└── README.md            # 项目说明
-```
-
-### 本地开发
-
-```bash
-# 安装依赖
-pip install -r requirements.txt
-
-# 运行测试
-python test_subtitles.py
-
-# 使用 Makefile
-make build    # 构建 Docker 镜像
-make test     # 运行测试
-make run      # 运行示例
-```
-
----
-
-## 🤝 贡献
-
-欢迎提交 Issue 和 Pull Request！
-
-## 📄 许可证
-
-MIT License - 详见 [LICENSE](LICENSE) 文件
+MIT License

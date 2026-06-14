@@ -4,23 +4,25 @@ import os
 import sys
 from pathlib import Path
 
-# 添加当前目录到Python路径
 sys.path.insert(0, os.path.dirname(__file__))
 
 from subtitle_parser import parse_subtitle_file
-from translator import get_translator
+from translator import get_translator, LLM_PROVIDERS
+
+
+TRANSLATOR_CHOICES = ['google'] + list(LLM_PROVIDERS.keys())
 
 
 @click.command()
 @click.argument('input_files', nargs=-1, type=click.Path(exists=True))
 @click.option('-o', '--output', 'output_file', help='Output file path (for single file)')
-@click.option('--translator', type=click.Choice(['google', 'openai', 'mimo', 'mimo-token']), default='google',
+@click.option('--translator', type=click.Choice(TRANSLATOR_CHOICES), default='google',
               help='Translation service to use')
-@click.option('--api-key', help='API key for OpenAI or MiMo')
+@click.option('--api-key', help='API key for LLM translators')
 @click.option('--source-lang', default='auto', help='Source language (default: auto)')
 @click.option('--target-lang', default='en', help='Target language (default: en)')
 @click.option('--bilingual/--no-bilingual', default=True, help='Generate bilingual subtitles')
-@click.option('--model', help='Model name for OpenAI or MiMo')
+@click.option('--model', help='Model name for LLM translators')
 def main(input_files, output_file, translator, api_key, source_lang, target_lang, bilingual, model):
     """Translate SRT or ASS subtitle files and create bilingual subtitles."""
     if not input_files:
