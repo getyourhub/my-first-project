@@ -17,21 +17,21 @@
 
 ```bash
 # 拉取镜像
-docker pull yourusername/subtitles:latest
+docker pull getyourhub/subtitles:latest
 
 # 翻译单个文件
-docker run -v $(pwd):/app yourusername/subtitles:latest input.srt --translator google --target-lang zh-cn
+docker run -v $(pwd):/app getyourhub/subtitles:latest input.srt --translator google --target-lang zh-cn
 
 # 批量翻译
-docker run -v $(pwd):/app yourusername/subtitles:latest *.srt --translator google --target-lang zh-cn
+docker run -v $(pwd):/app getyourhub/subtitles:latest *.srt --translator google --target-lang zh-cn
 ```
 
 ### 本地安装
 
 ```bash
 # 克隆仓库
-git clone https://github.com/yourusername/subtitles.git
-cd subtitles
+git clone https://github.com/getyourhub/my-first-project.git
+cd my-first-project
 
 # 安装依赖
 pip install -r requirements.txt
