@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>翻译进度 - Subtitle Translation Progress</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 { font-size: 1.8em; margin-bottom: 10px; }
+        .content { padding: 30px; }
+        
+        .overall-progress {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        .progress-bar-container {
+            background: #e9ecef;
+            border-radius: 10px;
+            height: 20px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+        .progress-text {
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .file-section {
+            background: #fff;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .file-section.active { border-color: #667eea; }
+        .file-section.complete { border-color: #28a745; }
+        .file-section.error { border-color: #dc3545; }
+        
+        .file-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .file-name {
+            font-weight: 600;
+            font-size: 1.1em;
+            color: #333;
+        }
+        .file-status {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        .status-waiting { background: #e9ecef; color: #666; }
+        .status-processing { background: #fff3cd; color: #856404; }
+        .status-complete { background: #d4edda; color: #155724; }
+        .status-error { background: #f8d7da; color: #721c24; }
+        
+        .file-progress {
+            margin-top: 15px;
+        }
+        .file-progress-bar {
+            background: #e9ecef;
+            border-radius: 8px;
+            height: 8px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        .file-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 8px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+        
+        .translation-preview {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            font-size: 0.9em;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        .preview-item {
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .preview-item:last-child { border-bottom: none; }
+        .preview-original { color: #666; }
+        .preview-translated { color: #667eea; font-weight: 500; }
+        
+        .download-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            margin-top: 15px;
+            transition: transform 0.2s;
+        }
+        .download-btn:hover { transform: translateY(-2px); }
+        
+        .completion-report {
+            display: none;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 30px;
+            text-align: center;
+        }
+        .report-title { font-size: 1.5em; margin-bottom: 20px; }
+        .report-stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .stat-item {
+            background: rgba(255,255,255,0.2);
+            padding: 15px 25px;
+            border-radius: 10px;
+        }
+        .stat-value { font-size: 2em; font-weight: bold; }
+        .stat-label { font-size: 0.9em; opacity: 0.9; }
+        
+        .btn-back {
+            display: inline-block;
+            padding: 15px 30px;
+            background: white;
+            color: #667eea;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 600;
+            margin-top: 20px;
+            transition: transform 0.2s;
+        }
+        .btn-back:hover { transform: translateY(-2px); }
+        
+        .log-container {
+            background: #1e1e1e;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+        }
+        .log-entry { color: #d4d4d4; padding: 2px 0; }
+        .log-success { color: #4ec9b0; }
+        .log-error { color: #f44747; }
+        .log-info { color: #569cd6; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⏳ 翻译中 / Translating...</h1>
+            <p id="headerStatus">正在准备翻译 / Preparing translation</p>
+        </div>
+        
+        <div class="content">
+            <div class="overall-progress">
+                <div class="progress-header">
+                    <span>总体进度 / Overall Progress</span>
+                    <span id="overallPercent">0%</span>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="overallBar"></div>
+                </div>
+                <div class="progress-text" id="overallText">准备中...</div>
+            </div>
+            
+            <div id="fileList"></div>
+            
+            <div class="completion-report" id="completionReport">
+                <div class="report-title">✅ 翻译完成 / Translation Complete</div>
+                <div class="report-stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalFiles">0</div>
+                        <div class="stat-label">总文件数 / Total Files</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="successCount">0</div>
+                        <div class="stat-label">成功 / Success</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="errorCount">0</div>
+                        <div class="stat-label">失败 / Failed</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="elapsedTime">0s</div>
+                        <div class="stat-label">耗时 / Time</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalSubtitles">0</div>
+                        <div class="stat-label">总字幕数 / Total Subtitles</div>
+                    </div>
+                </div>
+                <div id="downloadLinks"></div>
+                <a href="/" class="btn-back">🔄 继续翻译 / Continue</a>
+            </div>
+            
+            <div class="log-container" id="logContainer">
+                <div class="log-entry log-info">等待开始...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var files = {{ files | tojson }};
+        var translator = '{{ translator }}';
+        var apiKey = '{{ api_key }}';
+        var sourceLang = '{{ source_lang }}';
+        var targetLang = '{{ target_lang }}';
+        var bilingual = {{ bilingual | tojson }};
+        var model = '{{ model }}';
+        
+        var fileStates = {};
+        var totalSubtitles = 0;
+        
+        files.forEach(function(f) {
+            fileStates[f.name] = { status: 'waiting', progress: 0, current: 0, total: 0 };
+        });
+        
+        function log(message, type) {
+            var container = document.getElementById('logContainer');
+            var entry = document.createElement('div');
+            entry.className = 'log-entry log-' + (type || 'info');
+            entry.textContent = new Date().toLocaleTimeString() + ' - ' + message;
+            container.appendChild(entry);
+            container.scrollTop = container.scrollHeight;
+        }
+        
+        function updateFileUI(filename) {
+            var state = fileStates[filename];
+            var section = document.getElementById('file-' + filename.replace(/[^a-zA-Z0-9]/g, '_'));
+            if (!section) return;
+            
+            var statusEl = section.querySelector('.file-status');
+            var progressBar = section.querySelector('.file-progress-fill');
+            var progressText = section.querySelector('.progress-text');
+            
+            section.className = 'file-section ' + state.status;
+            statusEl.className = 'file-status status-' + state.status;
+            
+            switch(state.status) {
+                case 'waiting':
+                    statusEl.textContent = '等待中 / Waiting';
+                    break;
+                case 'processing':
+                    statusEl.textContent = '翻译中 / Processing';
+                    break;
+                case 'complete':
+                    statusEl.textContent = '✅ 完成 / Done';
+                    break;
+                case 'error':
+                    statusEl.textContent = '❌ 失败 / Failed';
+                    break;
+            }
+            
+            if (progressBar) progressBar.style.width = state.progress + '%';
+            if (progressText) progressText.textContent = state.current + ' / ' + state.total + ' (' + state.progress + '%)';
+        }
+        
+        function addTranslationPreview(filename, original, translated) {
+            var section = document.getElementById('file-' + filename.replace(/[^a-zA-Z0-9]/g, '_'));
+            if (!section) return;
+            
+            var preview = section.querySelector('.translation-preview');
+            if (!preview) {
+                preview = document.createElement('div');
+                preview.className = 'translation-preview';
+                section.appendChild(preview);
+            }
+            
+            var item = document.createElement('div');
+            item.className = 'preview-item';
+            item.innerHTML = '<div class="preview-original">🇬🇧 ' + original + '</div>' +
+                           '<div class="preview-translated">🇨🇳 ' + translated + '</div>';
+            preview.insertBefore(item, preview.firstChild);
+            
+            if (preview.children.length > 10) {
+                preview.removeChild(preview.lastChild);
+            }
+        }
+        
+        function updateOverallProgress() {
+            var totalProgress = 0;
+            var fileCount = files.length;
+            
+            files.forEach(function(f) {
+                totalProgress += fileStates[f.name].progress;
+            });
+            
+            var overall = Math.round(totalProgress / fileCount);
+            document.getElementById('overallBar').style.width = overall + '%';
+            document.getElementById('overallPercent').textContent = overall + '%';
+            document.getElementById('overallText').textContent = 
+                '文件 ' + Object.values(fileStates).filter(s => s.status === 'complete').length + ' / ' + fileCount + ' 已完成';
+        }
+        
+        function renderFileList() {
+            var container = document.getElementById('fileList');
+            container.innerHTML = '';
+            
+            files.forEach(function(f) {
+                var div = document.createElement('div');
+                div.className = 'file-section waiting';
+                div.id = 'file-' + f.name.replace(/[^a-zA-Z0-9]/g, '_');
+                div.innerHTML = 
+                    '<div class="file-header">' +
+                        '<span class="file-name">📄 ' + f.name + '</span>' +
+                        '<span class="file-status status-waiting">等待中 / Waiting</span>' +
+                    '</div>' +
+                    '<div class="file-progress">' +
+                        '<div class="file-progress-bar"><div class="file-progress-fill"></div></div>' +
+                        '<div class="progress-text" style="text-align:center;color:#666;font-size:0.9em;">0 / 0 (0%)</div>' +
+                    '</div>';
+                container.appendChild(div);
+            });
+        }
+        
+        function startTranslation() {
+            renderFileList();
+            
+            var filesJson = encodeURIComponent(JSON.stringify(files));
+            var url = '/stream_translate?files=' + filesJson + 
+                     '&translator=' + encodeURIComponent(translator) +
+                     '&api_key=' + encodeURIComponent(apiKey) +
+                     '&source_lang=' + encodeURIComponent(sourceLang) +
+                     '&target_lang=' + encodeURIComponent(targetLang) +
+                     '&bilingual=' + bilingual +
+                     '&model=' + encodeURIComponent(model);
+            
+            var eventSource = new EventSource(url);
+            
+            eventSource.onmessage = function(event) {
+                var data = JSON.parse(event.data);
+                
+                switch(data.type) {
+                    case 'file_start':
+                        fileStates[data.file].status = 'processing';
+                        updateFileUI(data.file);
+                        document.getElementById('headerStatus').textContent = 
+                            '正在翻译 ' + data.file_num + '/' + data.total_files + ' / Processing file ' + data.file_num + ' of ' + data.total_files;
+                        log('开始翻译: ' + data.file, 'info');
+                        break;
+                        
+                    case 'file_info':
+                        fileStates[data.file].total = data.subtitle_count;
+                        totalSubtitles += data.subtitle_count;
+                        updateFileUI(data.file);
+                        log('字幕数量: ' + data.subtitle_count, 'info');
+                        break;
+                        
+                    case 'progress':
+                        fileStates[data.file].current = data.current;
+                        fileStates[data.file].progress = data.progress;
+                        updateFileUI(data.file);
+                        updateOverallProgress();
+                        addTranslationPreview(data.file, data.original + '...', data.translated + '...');
+                        break;
+                        
+                    case 'file_complete':
+                        fileStates[data.file].status = 'complete';
+                        fileStates[data.file].progress = 100;
+                        updateFileUI(data.file);
+                        updateOverallProgress();
+                        log('完成: ' + data.file + ' → ' + data.output, 'success');
+                        
+                        var link = document.createElement('a');
+                        link.href = data.download_url;
+                        link.download = data.output;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        break;
+                        
+                    case 'file_error':
+                        fileStates[data.file].status = 'error';
+                        fileStates[data.file].progress = 0;
+                        updateFileUI(data.file);
+                        updateOverallProgress();
+                        log('失败: ' + data.file + ' - ' + data.error, 'error');
+                        break;
+                        
+                    case 'complete':
+                        eventSource.close();
+                        showCompletionReport(data);
+                        break;
+                }
+            };
+            
+            eventSource.onerror = function() {
+                log('连接错误 / Connection error', 'error');
+                eventSource.close();
+            };
+        }
+        
+        function showCompletionReport(data) {
+            document.querySelector('.header h1').textContent = '✅ 翻译完成 / Translation Complete';
+            document.getElementById('headerStatus').textContent = '所有文件处理完毕 / All files processed';
+            
+            document.getElementById('completionReport').style.display = 'block';
+            document.getElementById('totalFiles').textContent = data.total_files;
+            document.getElementById('successCount').textContent = data.success_count;
+            document.getElementById('errorCount').textContent = data.error_count;
+            document.getElementById('elapsedTime').textContent = data.elapsed + 's';
+            document.getElementById('totalSubtitles').textContent = totalSubtitles;
+            
+            var downloadLinks = document.getElementById('downloadLinks');
+            downloadLinks.innerHTML = '<h3 style="margin-bottom:15px;">📥 下载翻译文件 / Download Translated Files</h3>';
+            
+            data.results.forEach(function(result) {
+                var link = document.createElement('a');
+                link.href = result.download_url;
+                link.className = 'download-btn';
+                link.style.margin = '5px';
+                link.textContent = '⬇ ' + result.output;
+                link.download = result.output;
+                downloadLinks.appendChild(link);
+            });
+            
+            log('翻译完成! 成功: ' + data.success_count + ', 失败: ' + data.error_count + ', 耗时: ' + data.elapsed + 's', 'success');
+        }
+        
+        window.onload = startTranslation;
+    </script>
+</body>
+</html>
