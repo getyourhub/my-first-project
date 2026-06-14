@@ -183,6 +183,7 @@
                         <select name="translator" id="translator" onchange="toggleApiKey()">
                             <option value="google">Google 翻译（免费）</option>
                             <option value="openai">OpenAI GPT（需 API Key）</option>
+                            <option value="mimo">小米 MiMo（需 API Key）</option>
                         </select>
                     </div>
 
@@ -220,8 +221,12 @@
 
                 <div id="api_key_section" class="api-key-section">
                     <div class="form-group">
-                        <label for="api_key">🔑 OpenAI API Key</label>
-                        <input type="password" name="api_key" id="api_key" placeholder="sk-...">
+                        <label for="api_key">🔑 API Key</label>
+                        <input type="password" name="api_key" id="api_key" placeholder="输入 API Key">
+                    </div>
+                    <div class="form-group" id="model_section" style="display: none;">
+                        <label for="model">🤖 模型名称（可选）</label>
+                        <input type="text" name="model" id="model" placeholder="留空使用默认模型">
                     </div>
                 </div>
 
@@ -241,6 +246,7 @@
                     <li>支持批量上传多个文件</li>
                     <li>Google 翻译免费使用，无需配置</li>
                     <li>OpenAI 翻译质量更高，需要 API Key</li>
+                    <li>小米 MiMo 是国产大模型，中文翻译效果好</li>
                     <li>翻译完成后会自动下载文件</li>
                 </ul>
             </div>
@@ -251,10 +257,13 @@
         function toggleApiKey() {
             var translator = document.getElementById('translator').value;
             var section = document.getElementById('api_key_section');
-            if (translator === 'openai') {
+            var modelSection = document.getElementById('model_section');
+            if (translator === 'openai' || translator === 'mimo') {
                 section.classList.add('show');
+                modelSection.style.display = 'block';
             } else {
                 section.classList.remove('show');
+                modelSection.style.display = 'none';
             }
         }
     </script>

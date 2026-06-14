@@ -50,9 +50,10 @@ def translate():
     source_lang = request.form.get('source_lang', 'auto')
     target_lang = request.form.get('target_lang', 'zh-cn')
     bilingual = request.form.get('bilingual', 'on') == 'on'
+    model = request.form.get('model', '')
 
     try:
-        translator = get_translator(translator_type, api_key or None, source_lang, target_lang)
+        translator = get_translator(translator_type, api_key or None, source_lang, target_lang, model=model or None)
     except Exception as e:
         flash(f'翻译器初始化失败: {e}')
         return redirect(url_for('index'))

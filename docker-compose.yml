@@ -11,5 +11,6 @@ services:
       - ./data:/data
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - MIMO_API_KEY=${MIMO_API_KEY}
       - PORT=5000
     restart: unless-stopped

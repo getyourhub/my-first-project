@@ -14,20 +14,21 @@ from translator import get_translator
 @click.command()
 @click.argument('input_files', nargs=-1, type=click.Path(exists=True))
 @click.option('-o', '--output', 'output_file', help='Output file path (for single file)')
-@click.option('--translator', type=click.Choice(['google', 'openai']), default='google',
+@click.option('--translator', type=click.Choice(['google', 'openai', 'mimo']), default='google',
               help='Translation service to use')
-@click.option('--api-key', help='API key for OpenAI')
+@click.option('--api-key', help='API key for OpenAI or MiMo')
 @click.option('--source-lang', default='auto', help='Source language (default: auto)')
 @click.option('--target-lang', default='en', help='Target language (default: en)')
 @click.option('--bilingual/--no-bilingual', default=True, help='Generate bilingual subtitles')
-def main(input_files, output_file, translator, api_key, source_lang, target_lang, bilingual):
+@click.option('--model', help='Model name for OpenAI or MiMo')
+def main(input_files, output_file, translator, api_key, source_lang, target_lang, bilingual, model):
     """Translate SRT or ASS subtitle files and create bilingual subtitles."""
     if not input_files:
         click.echo("No input files specified. Use --help for usage.")
         return
 
     # 初始化翻译器
-    translator_instance = get_translator(translator, api_key, source_lang, target_lang)
+    translator_instance = get_translator(translator, api_key, source_lang, target_lang, model=model)
 
     # 处理每个输入文件
     for input_file in input_files:
