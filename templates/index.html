@@ -184,6 +184,7 @@
                             <option value="google">Google 翻译（免费）</option>
                             <option value="openai">OpenAI GPT（需 API Key）</option>
                             <option value="mimo">小米 MiMo（需 API Key）</option>
+                            <option value="mimo-token">小米 MiMo Token Plan（推荐）</option>
                         </select>
                     </div>
 
@@ -246,7 +247,7 @@
                     <li>支持批量上传多个文件</li>
                     <li>Google 翻译免费使用，无需配置</li>
                     <li>OpenAI 翻译质量更高，需要 API Key</li>
-                    <li>小米 MiMo 是国产大模型，中文翻译效果好</li>
+                    <li>小米 MiMo Token Plan 是国内服务，推荐使用</li>
                     <li>翻译完成后会自动下载文件</li>
                 </ul>
             </div>
@@ -258,7 +259,7 @@
             var translator = document.getElementById('translator').value;
             var section = document.getElementById('api_key_section');
             var modelSection = document.getElementById('model_section');
-            if (translator === 'openai' || translator === 'mimo') {
+            if (translator === 'openai' || translator === 'mimo' || translator === 'mimo-token') {
                 section.classList.add('show');
                 modelSection.style.display = 'block';
             } else {

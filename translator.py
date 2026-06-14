@@ -26,8 +26,13 @@ class BaseTranslator(ABC):
             click.echo(f"Translating {i}/{total}...", nl=False)
             
             # 翻译文本
-            translated_text = self.translate_text(sub.original)
+            original_text = sub.original
+            translated_text = self.translate_text(original_text)
             sub.translated = translated_text
+            
+            # 检查翻译是否成功
+            if translated_text == original_text:
+                click.echo(f" Warning: Translation returned original text", nl=False)
             
             translated.append(sub)
             click.echo(f" Done")
@@ -74,9 +79,10 @@ class GoogleTranslator(BaseTranslator):
         try:
             src = self.source_lang if self.source_lang != 'auto' else 'auto'
             translator = self.translator_class(source=src, target=self.target_lang)
-            return translator.translate(text)
+            result = translator.translate(text)
+            return result if result else text
         except Exception as e:
-            click.echo(f"Translation error: {e}", err=True)
+            click.echo(f"\nGoogle translation error: {e}", err=True)
             return text  # 返回原文作为回退
 
 
@@ -124,7 +130,7 @@ class MiMoTranslator(BaseTranslator):
     """小米 MiMo 翻译器"""
     
     def __init__(self, api_key: str, source_lang: str = 'auto', target_lang: str = 'en',
-                 model: str = 'mimo-7b'):
+                 model: str = 'mimo-7b', base_url: str = None):
         super().__init__(normalize_lang(source_lang), normalize_lang(target_lang))
         self.api_key = api_key
         self.model = model
@@ -132,7 +138,7 @@ class MiMoTranslator(BaseTranslator):
         import openai
         self.client = openai.OpenAI(
             api_key=api_key,
-            base_url="https://api.xiaomimimo.com/v1"
+            base_url=base_url or "https://api.xiaomimimo.com/v1"
         )
     
     def translate_text(self, text: str) -> str:
@@ -156,7 +162,47 @@ class MiMoTranslator(BaseTranslator):
             return response.choices[0].message.content.strip()
             
         except Exception as e:
-            click.echo(f"MiMo translation error: {e}", err=True)
+            click.echo(f"\nMiMo translation error: {e}", err=True)
+            return text  # 返回原文作为回退
+
+
+class MiMoTokenPlanTranslator(BaseTranslator):
+    """小米 MiMo Token Plan 翻译器"""
+    
+    def __init__(self, api_key: str, source_lang: str = 'auto', target_lang: str = 'en',
+                 model: str = 'mimo-7b'):
+        super().__init__(normalize_lang(source_lang), normalize_lang(target_lang))
+        self.api_key = api_key
+        self.model = model
+        
+        import openai
+        self.client = openai.OpenAI(
+            api_key=api_key,
+            base_url="https://token-plan-cn.xiaomimimo.com/v1"
+        )
+    
+    def translate_text(self, text: str) -> str:
+        """使用小米 MiMo Token Plan 翻译文本"""
+        try:
+            prompt = f"""Translate the following subtitle text from {self.source_lang} to {self.target_lang}. 
+            Return only the translated text, no explanations.
+            
+            Text: {text}"""
+            
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=[
+                    {"role": "system", "content": "You are a professional subtitle translator. Translate accurately while maintaining timing and context."},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.3,
+                max_tokens=500
+            )
+            
+            return response.choices[0].message.content.strip()
+            
+        except Exception as e:
+            click.echo(f"\nMiMo Token Plan translation error: {e}", err=True)
             return text  # 返回原文作为回退
 
 
@@ -180,5 +226,12 @@ def get_translator(translator_type: str, api_key: Optional[str] = None,
                 raise ValueError("MiMo API key is required. Use --api-key or set MIMO_API_KEY environment variable.")
         
         return MiMoTranslator(api_key, source_lang, target_lang, model=model or 'mimo-7b')
+    elif translator_type == 'mimo-token':
+        if not api_key:
+            api_key = os.getenv('MIMO_TOKEN_PLAN_KEY')
+            if not api_key:
+                raise ValueError("MiMo Token Plan key is required. Use --api-key or set MIMO_TOKEN_PLAN_KEY environment variable.")
+        
+        return MiMoTokenPlanTranslator(api_key, source_lang, target_lang, model=model or 'mimo-7b')
     else:
         raise ValueError(f"Unsupported translator: {translator_type}")

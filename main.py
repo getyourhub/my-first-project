@@ -14,7 +14,7 @@ from translator import get_translator
 @click.command()
 @click.argument('input_files', nargs=-1, type=click.Path(exists=True))
 @click.option('-o', '--output', 'output_file', help='Output file path (for single file)')
-@click.option('--translator', type=click.Choice(['google', 'openai', 'mimo']), default='google',
+@click.option('--translator', type=click.Choice(['google', 'openai', 'mimo', 'mimo-token']), default='google',
               help='Translation service to use')
 @click.option('--api-key', help='API key for OpenAI or MiMo')
 @click.option('--source-lang', default='auto', help='Source language (default: auto)')
