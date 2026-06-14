@@ -55,13 +55,33 @@ def parse_srt_file(file_path: str) -> List[SubtitleEntry]:
 
 
 def parse_ass_file(file_path: str) -> List[SubtitleEntry]:
-    """解析ASS字幕文件"""
-    try:
-        subs = pysubs2.load(file_path, encoding='utf-8')
-    except Exception:
-        # 尝试其他编码
+    """解析ASS/SSA字幕文件"""
+    subs = None
+    
+    # 尝试不同的编码和格式
+    encodings = ['utf-8', 'utf-8-sig', 'latin-1', 'gbk', 'gb2312', 'big5']
+    
+    for encoding in encodings:
         try:
-            subs = pysubs2.load(file_path, encoding='latin-1')
+            subs = pysubs2.load(file_path, encoding=encoding)
+            break
+        except Exception:
+            continue
+    
+    # 如果自动检测失败，尝试手动解析
+    if subs is None:
+        try:
+            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                content = f.read()
+            subs = pysubs2.SSAFile.from_string(content)
+        except Exception:
+            pass
+    
+    if subs is None:
+        try:
+            with open(file_path, 'r', encoding='latin-1', errors='ignore') as f:
+                content = f.read()
+            subs = pysubs2.SSAFile.from_string(content)
         except Exception as e:
             raise ValueError(f"Could not parse ASS file: {e}")
     
@@ -73,6 +93,10 @@ def parse_ass_file(file_path: str) -> List[SubtitleEntry]:
         
         # 清理文本中的ASS标签
         text = clean_ass_text(event.text)
+        
+        # 跳过空文本
+        if not text.strip():
+            continue
         
         entry = SubtitleEntry(
             index=i,
